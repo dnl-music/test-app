@@ -6,18 +6,18 @@
 
 
 $this->title = "Категория - {$category->name}";
-$result = $db->query("SELECT `key`, `name`, `body`, `status` FROM `articles` WHERE `category_id`={$category->id}");
 ?>
+<h1><?= $category->name ?></h1>
 <div class="site-index">
     <div class="container">
         <div class="row">
         <div class="col-md-9">
-<?php if ($result->num_rows == 0) { ?>
+<?php if (!$articles) { ?>
     <p>Здесь ничего нет</p>
 <?php } else { ?>
 <ul>
-<?php while (list($key, $name, $body, $status) = $result->fetch_row()) { ?>
-    <li><a href="<?php echo \yii\helpers\Url::to(array('site/article', 'key' => $key)) ?>"><?php echo $name ?></a></li>
+<?php foreach ($articles as $article) { ?>
+    <li><a href="<?php echo \yii\helpers\Url::to(array('site/article', 'key' => $article->key)) ?>"><?php echo $article->name ?></a></li>
 <?php } ?>
 </ul>
 <?php } ?>

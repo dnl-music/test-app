@@ -10,8 +10,8 @@ $this->title = 'My Yii Application';
     <div class="container">
         <div class="md-9">
             <ul>
-                <?php foreach ($rows as $row) { ?>
-                    <li><a href="<?= Url::to(['/site/category', 'key' => $row->key]) ?>"><?= $row->name ?></a></li>
+                <?php foreach ($categories as $category) { ?>
+                    <li><a href="<?= Url::to(['/site/category', 'key' => $category->key]) ?>"><?= $category->name ?></a></li>
                 <?php } ?>
             </ul>
         </div>

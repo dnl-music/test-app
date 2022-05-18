@@ -15,7 +15,7 @@ class TagsTest extends Unit
         $tags = (new TagsService())->getArticles(4);
 
         self::assertIsArray($tags, 'Test is array');
-        self::assertEquals(6, $this->count($tags), 'Count tags elements');
+        self::assertEquals(6, count($tags), 'Count tags elements');
     }
 
 }

@@ -2,14 +2,15 @@
 
 namespace app\controllers;
 
-use mysqli;
-use services\TagsService;
+use app\models\Article;
+use app\models\ArticleCategory;
+use app\models\Tag;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
+use yii\web\NotFoundHttpException;
 
 class SiteController extends Controller
 {
-    public $db = null;
     /**
      * {@inheritdoc}
      */
@@ -41,27 +42,13 @@ class SiteController extends Controller
         ];
     }
 
-    public function beforeAction($action)
-    {
-        $this->db = new mysqli('localhost', 'root', '', 'test_app');
-        $this->db->set_charset('utf8');
-        return parent::beforeAction($action);
-    }
-
     /**
      * @return string
      */
     public function actionIndex()
     {
-        $rows = [];
-        $sql = "SELECT * FROM `articles_categories`";
-        $result = $this->db->query($sql);
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_object()) {
-                $rows[] = $row;
-            }
-        }
-        return $this->render('index', compact('rows'));
+        $categories = ArticleCategory::find()->all();
+        return $this->render('index', ['categories' => $categories]);
     }
 
     /**
@@ -70,8 +57,12 @@ class SiteController extends Controller
      */
     public function actionCategory($key)
     {
-        $category = $this->db->query("SELECT * FROM `articles_categories` WHERE `key`='{$key}'")->fetch_object();
-        return $this->render('category', ['category' => $category, 'db' => $this->db]);
+        $category = ArticleCategory::find()->where(['key' => $key])->one();
+        if(!$category) {
+            throw new NotFoundHttpException();
+        }
+        $articles = Article::find()->where(['category_id' => $category->id])->all();
+        return $this->render('category', ['category' => $category, 'articles' => $articles]);
     }
 
     /**
@@ -80,8 +71,11 @@ class SiteController extends Controller
      */
     public function actionArticle($key)
     {
-        $article = $this->db->query("SELECT * FROM `articles` WHERE `key`='{$key}'")->fetch_object();
-        return $this->render('article', compact('article'));
+        $article = Article::find()->where(['key' => $key])->one();
+        if(!$article) {
+            throw new NotFoundHttpException();
+        }
+        return $this->render('article', ['article' => $article]);
     }
 
     /**
@@ -90,9 +84,12 @@ class SiteController extends Controller
      */
     public function actionTag($key)
     {
-        //TODO: Нужно вывести записи по тегe ($key)
-        $tags = (new TagsService())->getArticles(1);
-        $tag = $this->db->query("SELECT * FROM `tags` WHERE `key`='{$key}'")->fetch_object();
-        return $this->render('tag', compact('tag'));
+        $tag = Tag::find()->where(['key' => $key])->one();
+        if(!$tag) {
+            throw new NotFoundHttpException();
+        }
+        $articles = $tag->articles;
+
+        return $this->render('tag', ['tag' => $tag, 'articles' => $articles]);
     }
 }
